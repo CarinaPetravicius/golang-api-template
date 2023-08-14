@@ -1,0 +1,10 @@
+server:
+  port: 8080
+
+service:
+  name: golang-api-template
+
+database:
+  dns: ${DATABASE_DNS}
+  pool: 6
+  timeout: 5
