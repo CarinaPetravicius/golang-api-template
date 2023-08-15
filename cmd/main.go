@@ -1,6 +1,9 @@
 package main
 
-import "golang-api-template/config"
+import (
+	"github.com/go-playground/validator/v10"
+	"golang-api-template/config"
+)
 
 func main() {
 	logger := config.NewLogger()
@@ -10,4 +13,9 @@ func main() {
 
 	database := config.NewDatabaseConnection(logger, configs.DB)
 	defer config.CloseDatabaseConnection(database)
+
+	validate := validator.New()
+	logger.Infof("Config validator: %v", validate)
+
+	config.StartHttpServer(logger, configs.Server)
 }

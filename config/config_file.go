@@ -15,7 +15,7 @@ type Configurations struct {
 
 // ServerConfigurations Server configurations
 type ServerConfigurations struct {
-	Port int `yaml:"port"`
+	Port string `yaml:"port"`
 }
 
 // ServiceConfigurations Service configurations
