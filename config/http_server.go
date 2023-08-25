@@ -2,12 +2,13 @@ package config
 
 import (
 	"go.uber.org/zap"
+	"golang-api-template/internal/adapters/api"
 	"net/http"
 	"time"
 )
 
 // StartHttpServer Config and start the http server
-func StartHttpServer(log *zap.SugaredLogger, config ServerConfigurations) {
+func StartHttpServer(log *zap.SugaredLogger, config ServerConfigurations, router *api.HTTPRouter) {
 	log.Infof("Http server listening on port: %s", config.Port)
 
 	// Config server
@@ -15,6 +16,7 @@ func StartHttpServer(log *zap.SugaredLogger, config ServerConfigurations) {
 		Addr:         ":" + config.Port,
 		ReadTimeout:  20 * time.Second,
 		WriteTimeout: 20 * time.Second,
+		Handler:      router.Router,
 	}
 
 	err := server.ListenAndServe()

@@ -39,9 +39,11 @@ func NewCustomMetricsRegistry(labels map[string]string) *CustomMetricRegistry {
 		Registry: prometheus.NewRegistry(),
 	}
 	for key, value := range labels {
+		k := key
+		v := value
 		custom.customLabels = append(custom.customLabels, &prometheusClient.LabelPair{
-			Name:  &key,
-			Value: &value,
+			Name:  &k,
+			Value: &v,
 		})
 	}
 	return custom

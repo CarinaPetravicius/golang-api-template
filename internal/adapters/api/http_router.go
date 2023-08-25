@@ -3,6 +3,7 @@ package api
 import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"go.elastic.co/apm/module/apmchiv5/v2"
 	md "golang-api-template/internal/adapters/api/middleware"
 	"time"
 )
@@ -18,6 +19,8 @@ func NewHTTPRouter(prometheusMetricRegistry *md.CustomMetricRegistry) *HTTPRoute
 
 	// Adding some middlewares ready
 	router.Use(middleware.AllowContentType("application/json"))
+	// Enable Elastic APM chiv5 Middleware
+	router.Use(apmchiv5.Middleware())
 	// Timeout is a middleware that cancels ctx after a given timeout and return http status error 504.
 	router.Use(middleware.Timeout(60 * time.Second))
 	// RequestID is a middleware that injects a request ID into the context of each request.

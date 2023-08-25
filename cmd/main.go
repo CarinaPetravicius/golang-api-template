@@ -24,5 +24,5 @@ func main() {
 	logger.Infof("Config validator: %v", validate)
 	api.NewHealthCheckController(router, prometheusMetrics)
 
-	config.StartHttpServer(logger, configs.Server)
+	config.StartHttpServer(logger, configs.Server, router)
 }
