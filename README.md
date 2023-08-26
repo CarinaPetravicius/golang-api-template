@@ -25,3 +25,10 @@ API Template with Golang, Hexagonal Architecture, OpenApi, Prometheus, Postgres,
 - In the root of this project, run to start the database: docker-compose up
 - Install all the dependencies defined on go.mod file: `go get .`
 - Config the environment variables of your localhost environment: `DATABASE_DNS=postgresql://root:root@localhost:5432/db?sslmode=disable`
+
+### Endpoints for Health Check:
+- `http://localhost:8080/health/live`
+- `http://localhost:8080/health/ready`
+
+### Prometheus endpoint with Go and Http metrics with custom service_name label:
+- `http://localhost:8080/metrics`

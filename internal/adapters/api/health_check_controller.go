@@ -13,7 +13,7 @@ func NewHealthCheckController(httpRouter *HTTPRouter, prometheusRegistry *middle
 	httpRouter.Router.Get("/health/live", handleLivelinessCheck)
 	httpRouter.Router.Get("/health/ready", handleReadinessCheck)
 	// prometheus metrics endpoint
-	httpRouter.Router.Get("/metrics", promhttp.HandlerFor(prometheusRegistry.Registry, promhttp.HandlerOpts{}).ServeHTTP)
+	httpRouter.Router.Get("/metrics", promhttp.HandlerFor(prometheusRegistry, promhttp.HandlerOpts{}).ServeHTTP)
 }
 
 func handleLivelinessCheck(writer http.ResponseWriter, reader *http.Request) {

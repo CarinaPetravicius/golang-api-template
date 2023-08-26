@@ -20,8 +20,7 @@ func main() {
 
 	// Config Http Routers and Controllers
 	router := api.NewHTTPRouter(prometheusMetrics)
-	validate := validator.New()
-	logger.Infof("Config validator: %v", validate)
+	_ = validator.New()
 	api.NewHealthCheckController(router, prometheusMetrics)
 
 	config.StartHttpServer(logger, configs.Server, router)
