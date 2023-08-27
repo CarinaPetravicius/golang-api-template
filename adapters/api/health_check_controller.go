@@ -2,8 +2,8 @@ package api
 
 import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"golang-api-template/internal/adapters/api/dto"
-	"golang-api-template/internal/adapters/api/middleware"
+	"golang-api-template/adapters/api/dto"
+	"golang-api-template/adapters/api/middleware"
 	"net/http"
 )
 

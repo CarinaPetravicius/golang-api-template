@@ -2,7 +2,7 @@ package config
 
 import (
 	"go.uber.org/zap"
-	"golang-api-template/internal/adapters/api"
+	"golang-api-template/adapters/api"
 	"net/http"
 	"time"
 )

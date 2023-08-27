@@ -2,9 +2,9 @@ package main
 
 import (
 	"github.com/go-playground/validator/v10"
+	"golang-api-template/adapters/api"
+	"golang-api-template/adapters/api/middleware"
 	"golang-api-template/config"
-	"golang-api-template/internal/adapters/api"
-	"golang-api-template/internal/adapters/api/middleware"
 )
 
 func main() {

@@ -4,7 +4,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"go.elastic.co/apm/module/apmchiv5/v2"
-	md "golang-api-template/internal/adapters/api/middleware"
+	md "golang-api-template/adapters/api/middleware"
 	"time"
 )
 
