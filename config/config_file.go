@@ -11,6 +11,7 @@ type Configurations struct {
 	Server  ServerConfigurations   `yaml:"server"`
 	Service ServiceConfigurations  `yaml:"service"`
 	DB      DatabaseConfigurations `yaml:"database"`
+	Kafka   KafkaConfiguration     `yaml:"kafka"`
 }
 
 // ServerConfigurations Server configurations
@@ -28,6 +29,24 @@ type DatabaseConfigurations struct {
 	DNS     string `yaml:"dns"`
 	Pool    int    `yaml:"pool"`
 	Timeout int    `yaml:"timeout"`
+}
+
+// KafkaConfiguration kafka connection and producer configuration
+type KafkaConfiguration struct {
+	SecurityProtocol string                     `yaml:"security-protocol"`
+	Servers          string                     `yaml:"servers"`
+	User             string                     `yaml:"user"`
+	Pass             string                     `yam:"pass"`
+	ClientName       string                     `yaml:"client-name"`
+	ConsumerEnabled  bool                       `yaml:"consumer-enabled"`
+	Consumer         KafkaConsumerConfiguration `yaml:"consumer"`
+}
+
+// KafkaConsumerConfiguration kafka consumer configuration
+type KafkaConsumerConfiguration struct {
+	Group      string   `yaml:"group"`
+	Topics     []string `yaml:"topics"`
+	MaxRecords int      `yaml:"max-records"`
 }
 
 // LoadConfigFile Load the yml config file and environment variables

@@ -23,5 +23,8 @@ func main() {
 	_ = validator.New()
 	api.NewHealthCheckController(router, prometheusMetrics)
 
+	producer := config.NewKafkaProducer(logger, configs.Kafka)
+	defer producer.Close()
+
 	config.StartHttpServer(logger, configs.Server, router)
 }

@@ -8,3 +8,16 @@ database:
   dns: ${DATABASE_DNS}
   pool: 6
   timeout: 5
+
+kafka:
+  security-protocol: "plaintext"
+  servers: "localhost:9092"
+  user: ""
+  pass: ""
+  client-name: "golang-api-template"
+  consumer-enabled: true
+  consumer:
+    group: "golang-api-template-group"
+    topics:
+      - user.event
+    max-records: 10
