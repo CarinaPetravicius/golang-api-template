@@ -36,7 +36,7 @@ type KafkaConfiguration struct {
 	SecurityProtocol string                     `yaml:"security-protocol"`
 	Servers          string                     `yaml:"servers"`
 	User             string                     `yaml:"user"`
-	Pass             string                     `yam:"pass"`
+	Pass             string                     `yaml:"pass"`
 	ClientName       string                     `yaml:"client-name"`
 	ConsumerEnabled  bool                       `yaml:"consumer-enabled"`
 	Consumer         KafkaConsumerConfiguration `yaml:"consumer"`

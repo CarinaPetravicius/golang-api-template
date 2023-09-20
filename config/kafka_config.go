@@ -10,11 +10,13 @@ const (
 	plaintext     = "plaintext"
 	saslSsl       = "sasl_ssl"
 	saslPlaintext = "sasl_plaintext"
+	plain         = "PLAIN"
 )
 
-// NewKafkaProducer init the kafka producer connection
-func NewKafkaProducer(log *zap.SugaredLogger, config KafkaConfiguration) *kafka.Producer {
+// NewKafkaConfigMap config the kafka connection properties
+func NewKafkaConfigMap(log *zap.SugaredLogger, config KafkaConfiguration) *kafka.ConfigMap {
 	var kafkaConf = &kafka.ConfigMap{
+		"bootstrap.servers": config.Servers,
 		"message.max.bytes": 1000000,
 		"retries":           5,
 		"retry.backoff.ms":  1000,
@@ -24,8 +26,6 @@ func NewKafkaProducer(log *zap.SugaredLogger, config KafkaConfiguration) *kafka.
 		// acks = 0, the write is considered successful the moment the request is sent out. No need to wait for a response.
 		"acks": -1,
 	}
-
-	_ = kafkaConf.SetKey("bootstrap.servers", config.Servers)
 
 	switch config.SecurityProtocol {
 	case plaintext:
@@ -41,17 +41,11 @@ func NewKafkaProducer(log *zap.SugaredLogger, config KafkaConfiguration) *kafka.
 		log.Panic(kafka.NewError(kafka.ErrUnknownProtocol, "Unknown kafka protocol", true))
 	}
 
-	producer, err := kafka.NewProducer(kafkaConf)
-	if err != nil {
-		log.Panicf("Error to create the kafka producer: %s", err)
-	}
-
-	log.Infof("Kafka Producer Connecteded: %v", producer.Len())
-	return producer
+	return kafkaConf
 }
 
 func setSSLProperties(kafkaConf *kafka.ConfigMap, config *KafkaConfiguration) {
-	_ = kafkaConf.SetKey("sasl.mechanism", "PLAIN")
+	_ = kafkaConf.SetKey("sasl.mechanism", plain)
 	_ = kafkaConf.SetKey("sasl.username", config.User)
 	_ = kafkaConf.SetKey("sasl.password", config.Pass)
 }

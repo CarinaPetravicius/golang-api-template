@@ -26,6 +26,12 @@ API Template with Golang, Hexagonal Architecture, OpenApi, Prometheus, Postgres,
 - Install all the dependencies defined on go.mod file: `go get .`
 - Config the environment variables of your localhost environment: `DATABASE_DNS=postgresql://root:root@localhost:5432/db?sslmode=disable`
 
+### Kafka interface
+After run the project, you can access the Kafdrop on:
+- `localhost:9000` 
+
+On this Kafka interface you can see that the kafka topic was created.
+
 ### Endpoints for Health Check:
 - `http://localhost:8080/health/live`
 - `http://localhost:8080/health/ready`

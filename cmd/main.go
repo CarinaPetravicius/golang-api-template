@@ -1,9 +1,11 @@
 package main
 
 import (
+	"context"
 	"github.com/go-playground/validator/v10"
 	"golang-api-template/adapters/api"
 	"golang-api-template/adapters/api/middleware"
+	"golang-api-template/adapters/kafka"
 	"golang-api-template/config"
 )
 
@@ -23,8 +25,12 @@ func main() {
 	_ = validator.New()
 	api.NewHealthCheckController(router, prometheusMetrics)
 
-	producer := config.NewKafkaProducer(logger, configs.Kafka)
+	// Start Kafka with a new context
+	ctx := context.Background()
+	kafkaConfigMap := config.NewKafkaConfigMap(logger, configs.Kafka)
+	producer := kafka.NewKafkaProducer(logger, kafkaConfigMap)
 	defer producer.Close()
+	kafka.CreateKafkaTopics(logger, kafkaConfigMap, configs.Kafka, ctx)
 
 	config.StartHttpServer(logger, configs.Server, router)
 }
