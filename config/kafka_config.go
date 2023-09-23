@@ -11,20 +11,31 @@ const (
 	saslSsl       = "sasl_ssl"
 	saslPlaintext = "sasl_plaintext"
 	plain         = "PLAIN"
+	Producer      = "producer"
+	Consumer      = "consumer"
+	Topic         = "topic"
 )
 
 // NewKafkaConfigMap config the kafka connection properties
-func NewKafkaConfigMap(log *zap.SugaredLogger, config KafkaConfiguration) *kafka.ConfigMap {
+func NewKafkaConfigMap(log *zap.SugaredLogger, config KafkaConfiguration, configType string) *kafka.ConfigMap {
 	var kafkaConf = &kafka.ConfigMap{
 		"bootstrap.servers": config.Servers,
 		"message.max.bytes": 1000000,
-		"retries":           5,
-		"retry.backoff.ms":  1000,
+	}
+	if configType == Producer {
+		_ = kafkaConf.SetKey("retries", 5)
+		_ = kafkaConf.SetKey("retry.backoff.ms", 1000)
 		// Acks property controls how many partition replicas must acknowledge the receipt of a record before a producer can consider a particular write operation as successful.
 		// acks = -1, the producer waits for the ack. Having the messages replicated to all the partition replicas.
-		// acks = 1, the leader must receive the record and respond before the write is considered successful
-		// acks = 0, the write is considered successful the moment the request is sent out. No need to wait for a response.
-		"acks": -1,
+		_ = kafkaConf.SetKey("acks", -1)
+	}
+	if configType == Consumer && config.ConsumerEnabled {
+		_ = kafkaConf.SetKey("group.id", config.Consumer.Group)
+		_ = kafkaConf.SetKey("auto.offset.reset", "latest")
+		_ = kafkaConf.SetKey("heartbeat.interval.ms", 3000)
+		_ = kafkaConf.SetKey("session.timeout.ms", 30000)
+		_ = kafkaConf.SetKey("max.poll.interval.ms", 120000)
+		_ = kafkaConf.SetKey("max.partition.fetch.bytes", 256000)
 	}
 
 	switch config.SecurityProtocol {

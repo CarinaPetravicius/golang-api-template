@@ -27,10 +27,11 @@ func main() {
 
 	// Start Kafka with a new context
 	ctx := context.Background()
-	kafkaConfigMap := config.NewKafkaConfigMap(logger, configs.Kafka)
-	producer := kafka.NewKafkaProducer(logger, kafkaConfigMap)
+	producer := kafka.NewKafkaProducer(logger, config.NewKafkaConfigMap(logger, configs.Kafka, config.Producer))
 	defer producer.Close()
-	kafka.CreateKafkaTopics(logger, kafkaConfigMap, configs.Kafka, ctx)
+	kafka.CreateKafkaTopics(logger, configs.Kafka, ctx, config.NewKafkaConfigMap(logger, configs.Kafka, config.Topic))
+	consumer := kafka.NewKafkaConsumer(logger, config.NewKafkaConfigMap(logger, configs.Kafka, config.Consumer))
+	defer kafka.CloseConsumer(consumer)
 
 	config.StartHttpServer(logger, configs.Server, router)
 }

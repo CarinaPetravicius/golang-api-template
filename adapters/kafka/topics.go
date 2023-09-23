@@ -8,7 +8,7 @@ import (
 )
 
 // CreateKafkaTopics create the kafka topics
-func CreateKafkaTopics(log *zap.SugaredLogger, kafkaConfigMap *kafka.ConfigMap, config config.KafkaConfiguration, ctx context.Context) {
+func CreateKafkaTopics(log *zap.SugaredLogger, config config.KafkaConfiguration, ctx context.Context, kafkaConfigMap *kafka.ConfigMap) {
 	adminClient, err := kafka.NewAdminClient(kafkaConfigMap)
 	if err != nil {
 		log.Panicf("Error to create the kafka admin client: %s", err)
