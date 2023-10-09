@@ -38,3 +38,11 @@ On this Kafka interface you can see that the kafka topic was created.
 
 ### Prometheus endpoint with Go and Http metrics with custom service_name label:
 - `http://localhost:8080/metrics`
+
+### Generate code based on the openapi documentation:
+- Install the latest version of "openapi-generator-cli". On linux you can use the npm to install:
+- `npm install @openapitools/openapi-generator-cli -g`
+- `openapi-generator-cli generate \
+  -g go-server -i openapi.yaml \
+  -o server/ \
+  --additional-properties=outputAsLibrary=true,sourceFolder=openapi`
