@@ -38,6 +38,13 @@ paths:
       summary: Add a new product to the store
       description: Add a new product to the store
       operationId: addProduct
+      parameters:
+        - name: Authorization
+          in: header
+          description: 'Bearer token'
+          required: true
+          schema:
+            type: string
       requestBody:
         description: Create a new product in the store
         content:
@@ -46,7 +53,7 @@ paths:
               $ref: '#/components/schemas/Product'
         required: true
       responses:
-        '200':
+        '201':
           description: Successful operation
           content:
             application/json:
@@ -62,10 +69,6 @@ paths:
           description: Conflict
         '500':
           description: Internal Server Error
-      security:
-        - productstore_auth:
-            - write:products
-            - read:products
   /product/findByStatus:
     get:
       tags:
@@ -74,6 +77,12 @@ paths:
       description: Find products by status
       operationId: findProductsByStatus
       parameters:
+        - name: Authorization
+          in: header
+          description: 'Bearer token'
+          required: true
+          schema:
+            type: string
         - name: status
           in: query
           description: Status values that need to be considered for filter
@@ -101,10 +110,6 @@ paths:
           description: Not Authenticated
         '500':
           description: Internal Server Error
-      security:
-        - productstore_auth:
-            - write:products
-            - read:products
   /product/{productId}:
     get:
       tags:
@@ -113,6 +118,12 @@ paths:
       description: Returns a single product
       operationId: getProductById
       parameters:
+        - name: Authorization
+          in: header
+          description: 'Bearer token'
+          required: true
+          schema:
+            type: string
         - name: productId
           in: path
           description: ID of product to return
@@ -135,17 +146,26 @@ paths:
           description: Product not found
         '500':
           description: Internal Server Error
-      security:
-        - api_key: []
-        - productstore_auth:
-            - write:products
-            - read:products
     put:
       tags:
         - product
       summary: Update an existing product
       description: Update an existing product by Id
       operationId: updateProduct
+      parameters:
+        - name: Authorization
+          in: header
+          description: 'Bearer token'
+          required: true
+          schema:
+            type: string
+        - name: productId
+          in: path
+          description: ID of product to return
+          required: true
+          schema:
+            type: string
+            format: uuid
       requestBody:
         description: Update an existent product in the store
         content:
@@ -154,7 +174,7 @@ paths:
               $ref: '#/components/schemas/Product'
         required: true
       responses:
-        '200':
+        '201':
           description: Successful operation
           content:
             application/json:
@@ -170,10 +190,6 @@ paths:
           description: Product not found
         '500':
           description: Internal Server Error
-      security:
-        - productstore_auth:
-            - write:products
-            - read:products
     delete:
       tags:
         - product
@@ -181,19 +197,19 @@ paths:
       description: delete a product
       operationId: deleteProduct
       parameters:
-        - name: api_key
+        - name: Authorization
           in: header
-          description: ''
-          required: false
+          description: 'Bearer token'
+          required: true
           schema:
             type: string
         - name: productId
           in: path
-          description: Product id to delete
+          description: ID of product to return
           required: true
           schema:
-            type: integer
-            format: int64
+            type: string
+            format: uuid
       responses:
         '400':
           description: Invalid ID supplied
@@ -205,10 +221,6 @@ paths:
           description: Product not found
         '500':
           description: Internal Server Error
-      security:
-        - productstore_auth:
-            - write:products
-            - read:products
   /product/item:
     post:
       tags:
@@ -216,13 +228,20 @@ paths:
       summary: Place an product item
       description: Place a new product item
       operationId: placeItem
+      parameters:
+        - name: Authorization
+          in: header
+          description: 'Bearer token'
+          required: true
+          schema:
+            type: string
       requestBody:
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/Item'
       responses:
-        '200':
+        '201':
           description: successful operation
           content:
             application/json:
@@ -244,6 +263,12 @@ paths:
       description: For valid response try uuid
       operationId: getProductItemById
       parameters:
+        - name: Authorization
+          in: header
+          description: 'Bearer token'
+          required: true
+          schema:
+            type: string
         - name: itemId
           in: path
           description: ID of product item that needs to be fetched
@@ -273,6 +298,12 @@ paths:
       description: For valid response try integer uuid
       operationId: updateItem
       parameters:
+        - name: Authorization
+          in: header
+          description: 'Bearer token'
+          required: true
+          schema:
+            type: string
         - name: itemId
           in: path
           description: ID of the product item that needs to be deleted
@@ -519,16 +550,3 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Product'
-  securitySchemes:
-    productstore_auth:
-      type: oauth2
-      flows:
-        implicit:
-          authorizationUrl: https://productstore3.swagger.io/oauth/authorize
-          scopes:
-            write:products: modify products in your account
-            read:products: read your products
-    api_key:
-      type: apiKey
-      name: api_key
-      in: header
