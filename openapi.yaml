@@ -31,7 +31,7 @@ tags:
       description: Find out more about our product items
       url: http://swagger.io
 paths:
-  /product:
+  /v1/product:
     post:
       tags:
         - product
@@ -69,7 +69,7 @@ paths:
           description: Conflict
         '500':
           description: Internal Server Error
-  /product/findByStatus:
+  /v1/product/findByStatus:
     get:
       tags:
         - product
@@ -110,7 +110,7 @@ paths:
           description: Not Authenticated
         '500':
           description: Internal Server Error
-  /product/{productId}:
+  /v1/product/{productId}:
     get:
       tags:
         - product
@@ -221,7 +221,7 @@ paths:
           description: Product not found
         '500':
           description: Internal Server Error
-  /product/item:
+  /v1/product/item:
     post:
       tags:
         - item
@@ -255,7 +255,7 @@ paths:
           description: Forbidden
         '500':
           description: Internal Server Error
-  /product/item/{itemId}:
+  /v1/product/item/{itemId}:
     get:
       tags:
         - item

@@ -22,8 +22,9 @@ func main() {
 
 	// Config Http Routers and Controllers
 	router := api.NewHTTPRouter(prometheusMetrics)
-	_ = validator.New()
+	valid := validator.New()
 	api.NewHealthCheckController(router, prometheusMetrics)
+	api.NewProductController(router, logger, valid, prometheusMetrics)
 
 	// Start Kafka with a new context
 	ctx := context.Background()
