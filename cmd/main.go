@@ -7,6 +7,7 @@ import (
 	"golang-api-template/adapters/api/middleware"
 	"golang-api-template/adapters/kafka"
 	"golang-api-template/config"
+	"golang-api-template/core/services"
 )
 
 func main() {
@@ -20,11 +21,14 @@ func main() {
 
 	prometheusMetrics := middleware.NewPrometheusMiddleware(configs.Service.Name)
 
+	// Config Domain Services
+	productService := services.NewProductService(logger)
+
 	// Config Http Routers and Controllers
 	router := api.NewHTTPRouter(prometheusMetrics)
 	valid := validator.New()
 	api.NewHealthCheckController(router, prometheusMetrics)
-	api.NewProductController(router, logger, valid, prometheusMetrics)
+	api.NewProductController(router, logger, valid, prometheusMetrics, productService)
 
 	// Start Kafka with a new context
 	ctx := context.Background()

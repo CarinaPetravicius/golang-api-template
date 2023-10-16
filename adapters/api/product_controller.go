@@ -11,6 +11,7 @@ import (
 	"golang-api-template/adapters/api/dto"
 	"golang-api-template/adapters/api/middleware"
 	"golang-api-template/core/domain"
+	"golang-api-template/core/ports"
 	"net/http"
 )
 
@@ -19,13 +20,15 @@ type ProductController struct {
 	log           *zap.SugaredLogger
 	counterMetric prometheus.Counter
 	validate      *validator.Validate
+	service       ports.IProductService
 }
 
 // NewProductController Create a new http product controller API
-func NewProductController(httpRouter *HTTPRouter, log *zap.SugaredLogger, validator *validator.Validate, prometheusRegistry *middleware.CustomMetricRegistry) {
+func NewProductController(httpRouter *HTTPRouter, log *zap.SugaredLogger, validator *validator.Validate, prometheusRegistry *middleware.CustomMetricRegistry, service ports.IProductService) {
 	controller := &ProductController{
 		log:      log,
 		validate: validator,
+		service:  service,
 		counterMetric: promauto.With(prometheusRegistry).NewCounter(prometheus.CounterOpts{
 			Name: "products_reqs_total",
 			Help: "The total number of request for products endpoints",
@@ -36,25 +39,26 @@ func NewProductController(httpRouter *HTTPRouter, log *zap.SugaredLogger, valida
 }
 
 // createProduct create the product
-func (p *ProductController) createProduct(writer http.ResponseWriter, request *http.Request) {
-	p.counterMetric.Inc()
-	traceID := request.Context().Value(serverMiddleware.RequestIDKey)
+func (pc *ProductController) createProduct(writer http.ResponseWriter, request *http.Request) {
+	pc.counterMetric.Inc()
+	traceID := request.Context().Value(serverMiddleware.RequestIDKey).(string)
 
 	productRequest := domain.Product{}
 	err := json.NewDecoder(request.Body).Decode(&productRequest)
 	if err != nil {
-		p.log.With("traceId", traceID).Errorf("Error to parsing the product payload body. Maformed: %v", err)
+		pc.log.With("traceId", traceID).Errorf("Error to parsing the product payload body. Maformed: %v", err)
 		dto.RenderErrorResponse(request.Context(), writer, http.StatusBadRequest, err)
 		return
 	}
 
-	_ = p.validate.RegisterValidation("not_blank", validators.NotBlank)
-	err = p.validate.Struct(productRequest)
+	_ = pc.validate.RegisterValidation("not_blank", validators.NotBlank)
+	err = pc.validate.Struct(productRequest)
 	if err != nil {
-		p.log.With("traceId", traceID).Errorf("Product validation error: %v", err)
+		pc.log.With("traceId", traceID).Errorf("Product validation error: %v", err)
 		dto.RenderErrorResponse(request.Context(), writer, http.StatusBadRequest, err)
 		return
 	}
 
-	dto.RenderResponse(request.Context(), writer, http.StatusCreated, dto.DefaultResponse(http.StatusText(http.StatusCreated), ""))
+	response := pc.service.CreateProduct(request.Context(), productRequest, traceID)
+	dto.RenderResponse(request.Context(), writer, http.StatusCreated, response)
 }

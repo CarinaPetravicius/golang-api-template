@@ -6,6 +6,7 @@ require (
 	github.com/confluentinc/confluent-kafka-go v1.9.2
 	github.com/go-chi/chi/v5 v5.0.10
 	github.com/go-playground/validator/v10 v10.15.5
+	github.com/google/uuid v1.3.1
 	github.com/prometheus/client_golang v1.17.0
 	github.com/prometheus/client_model v0.5.0
 	github.com/uptrace/bun v1.1.16
