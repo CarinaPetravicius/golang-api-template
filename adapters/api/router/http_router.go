@@ -1,10 +1,10 @@
-package api
+package router
 
 import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"go.elastic.co/apm/module/apmchiv5/v2"
-	md "golang-api-template/adapters/api/middleware"
+	middleware3 "golang-api-template/adapters/api/middleware"
 	"time"
 )
 
@@ -14,7 +14,7 @@ type HTTPRouter struct {
 }
 
 // NewHTTPRouter create new http router
-func NewHTTPRouter(prometheusMetricRegistry *md.CustomMetricRegistry) *HTTPRouter {
+func NewHTTPRouter(prometheusMetricRegistry *middleware3.CustomMetricRegistry) *HTTPRouter {
 	router := chi.NewRouter()
 
 	// Adding some middlewares ready
@@ -30,7 +30,7 @@ func NewHTTPRouter(prometheusMetricRegistry *md.CustomMetricRegistry) *HTTPRoute
 	// Recover is a middleware that recovers from panics, logs the panic, and returns an HTTP 500.
 	router.Use(middleware.Recoverer)
 	// Use a http middleware to pattern request for prometheus
-	router.Use(md.NewHttpHandlerMiddleware(prometheusMetricRegistry))
+	router.Use(middleware3.NewHttpHandlerMiddleware(prometheusMetricRegistry))
 
 	return &HTTPRouter{
 		Router: router,

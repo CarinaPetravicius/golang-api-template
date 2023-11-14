@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"github.com/go-chi/chi/v5"
 	serverMiddleware "github.com/go-chi/chi/v5/middleware"
 	"github.com/go-playground/validator/v10"
 	"github.com/go-playground/validator/v10/non-standard/validators"
@@ -10,6 +11,7 @@ import (
 	"go.uber.org/zap"
 	"golang-api-template/adapters/api/dto"
 	"golang-api-template/adapters/api/middleware"
+	"golang-api-template/adapters/api/router"
 	"golang-api-template/core/domain"
 	"golang-api-template/core/ports"
 	"net/http"
@@ -21,21 +23,27 @@ type ProductController struct {
 	counterMetric prometheus.Counter
 	validate      *validator.Validate
 	service       ports.IProductService
+	jwtVerify     *middleware.JWTVerify
 }
 
 // NewProductController Create a new http product controller API
-func NewProductController(httpRouter *HTTPRouter, log *zap.SugaredLogger, validator *validator.Validate, prometheusRegistry *middleware.CustomMetricRegistry, service ports.IProductService) {
+func NewProductController(httpRouter *router.HTTPRouter, log *zap.SugaredLogger, validator *validator.Validate, prometheusRegistry *middleware.CustomMetricRegistry,
+	service ports.IProductService, jwtVerify *middleware.JWTVerify) {
 	controller := &ProductController{
-		log:      log,
-		validate: validator,
-		service:  service,
+		log:       log,
+		validate:  validator,
+		service:   service,
+		jwtVerify: jwtVerify,
 		counterMetric: promauto.With(prometheusRegistry).NewCounter(prometheus.CounterOpts{
 			Name: "products_reqs_total",
 			Help: "The total number of request for products endpoints",
 		}),
 	}
 
-	httpRouter.Router.Post("/v1/product", controller.createProduct)
+	httpRouter.Router.Group(func(r chi.Router) {
+		r.Use(controller.jwtVerify.JWTVerifyHandler())
+		r.Post("/v1/product", controller.createProduct)
+	})
 }
 
 // createProduct create the product

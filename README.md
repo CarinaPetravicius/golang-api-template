@@ -24,7 +24,9 @@ API Template with Golang, Hexagonal Architecture, OpenApi, Prometheus, Postgres,
 ### Start the project
 - In the root of this project, run to start the database: docker-compose up
 - Install all the dependencies defined on go.mod file: `go get .`
-- Config the environment variables of your localhost environment: `DATABASE_DNS=postgresql://root:root@localhost:5432/db?sslmode=disable`
+- Config the environment variables of your localhost environment: 
+  `DATABASE_DNS=postgresql://root:root@localhost:5432/db?sslmode=disable`
+  `OAUTH_SECRET=setYourSecretHere`
 
 ### Kafka interface
 After run the project, you can access the Kafdrop on:

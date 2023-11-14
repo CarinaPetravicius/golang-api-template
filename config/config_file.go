@@ -12,6 +12,7 @@ type Configurations struct {
 	Service ServiceConfigurations  `yaml:"service"`
 	DB      DatabaseConfigurations `yaml:"database"`
 	Kafka   KafkaConfiguration     `yaml:"kafka"`
+	Oauth   Oauth                  `yaml:"oauth"`
 }
 
 // ServerConfigurations Server configurations
@@ -47,6 +48,11 @@ type KafkaConsumerConfiguration struct {
 	Group      string   `yaml:"group"`
 	Topics     []string `yaml:"topics"`
 	MaxRecords int      `yaml:"max-records"`
+}
+
+// Oauth secret key
+type Oauth struct {
+	Secret string `yaml:"secret"`
 }
 
 // LoadConfigFile Load the yml config file and environment variables

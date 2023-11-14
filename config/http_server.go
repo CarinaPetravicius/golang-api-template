@@ -2,13 +2,13 @@ package config
 
 import (
 	"go.uber.org/zap"
-	"golang-api-template/adapters/api"
+	"golang-api-template/adapters/api/router"
 	"net/http"
 	"time"
 )
 
 // StartHttpServer Config and start the http server
-func StartHttpServer(log *zap.SugaredLogger, config ServerConfigurations, router *api.HTTPRouter) {
+func StartHttpServer(log *zap.SugaredLogger, config ServerConfigurations, router *router.HTTPRouter) {
 	log.Infof("Http server listening on port: %s", config.Port)
 
 	// Config server

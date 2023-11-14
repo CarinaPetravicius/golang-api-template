@@ -4,11 +4,12 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"golang-api-template/adapters/api/dto"
 	"golang-api-template/adapters/api/middleware"
+	"golang-api-template/adapters/api/router"
 	"net/http"
 )
 
 // NewHealthCheckController create a new health check http controller
-func NewHealthCheckController(httpRouter *HTTPRouter, prometheusRegistry *middleware.CustomMetricRegistry) {
+func NewHealthCheckController(httpRouter *router.HTTPRouter, prometheusRegistry *middleware.CustomMetricRegistry) {
 	// health check endpoints for kubernetes
 	httpRouter.Router.Get("/health/live", handleLivelinessCheck)
 	httpRouter.Router.Get("/health/ready", handleReadinessCheck)

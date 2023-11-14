@@ -21,3 +21,6 @@ kafka:
     topics:
       - user.event
     max-records: 10
+
+oauth:
+  secret: ${OAUTH_SECRET}

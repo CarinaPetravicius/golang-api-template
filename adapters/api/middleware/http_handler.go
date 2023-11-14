@@ -2,7 +2,7 @@ package middleware
 
 import (
 	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
+	md "github.com/go-chi/chi/v5/middleware"
 	"github.com/prometheus/client_golang/prometheus"
 	"net/http"
 	"strconv"
@@ -49,7 +49,7 @@ func (h HttpMiddleware) httpHandler(next http.Handler) http.Handler {
 	// Fill the values in http metrics
 	fc := func(writer http.ResponseWriter, reader *http.Request) {
 		startTime := time.Now()
-		wrapWriter := middleware.NewWrapResponseWriter(writer, reader.ProtoMajor)
+		wrapWriter := md.NewWrapResponseWriter(writer, reader.ProtoMajor)
 		next.ServeHTTP(wrapWriter, reader)
 
 		routectx := chi.RouteContext(reader.Context())

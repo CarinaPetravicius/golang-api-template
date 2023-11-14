@@ -4,7 +4,8 @@ import (
 	"context"
 	"github.com/go-playground/validator/v10"
 	"golang-api-template/adapters/api"
-	"golang-api-template/adapters/api/middleware"
+	middleware2 "golang-api-template/adapters/api/middleware"
+	"golang-api-template/adapters/api/router"
 	"golang-api-template/adapters/kafka"
 	"golang-api-template/config"
 	"golang-api-template/core/services"
@@ -19,16 +20,18 @@ func main() {
 	database := config.NewDatabaseConnection(logger, configs.DB)
 	defer config.CloseDatabaseConnection(database)
 
-	prometheusMetrics := middleware.NewPrometheusMiddleware(configs.Service.Name)
+	prometheusMetrics := middleware2.NewPrometheusMiddleware(configs.Service.Name)
+	jwtHandler := middleware2.NewJWTHandler(logger)
 
 	// Config Domain Services
 	productService := services.NewProductService(logger)
 
 	// Config Http Routers and Controllers
-	router := api.NewHTTPRouter(prometheusMetrics)
+	route := router.NewHTTPRouter(prometheusMetrics)
 	valid := validator.New()
-	api.NewHealthCheckController(router, prometheusMetrics)
-	api.NewProductController(router, logger, valid, prometheusMetrics, productService)
+	api.NewHealthCheckController(route, prometheusMetrics)
+	api.NewAuthController(route, logger, valid)
+	api.NewProductController(route, logger, valid, prometheusMetrics, productService, jwtHandler)
 
 	// Start Kafka with a new context
 	ctx := context.Background()
@@ -38,5 +41,5 @@ func main() {
 	consumer := kafka.NewKafkaConsumer(logger, config.NewKafkaConfigMap(logger, configs.Kafka, config.Consumer))
 	defer kafka.CloseConsumer(consumer)
 
-	config.StartHttpServer(logger, configs.Server, router)
+	config.StartHttpServer(logger, configs.Server, route)
 }
