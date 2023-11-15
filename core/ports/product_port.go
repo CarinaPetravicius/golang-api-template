@@ -7,5 +7,5 @@ import (
 
 // IProductService product service interface
 type IProductService interface {
-	CreateProduct(ctx context.Context, request domain.Product, traceID string) *domain.ProductResponse
+	CreateProduct(ctx context.Context, request *domain.Product, traceID string) *domain.ProductResponse
 }

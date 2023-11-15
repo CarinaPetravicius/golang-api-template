@@ -51,8 +51,8 @@ func (pc *ProductController) createProduct(writer http.ResponseWriter, request *
 	pc.counterMetric.Inc()
 	traceID := request.Context().Value(serverMiddleware.RequestIDKey).(string)
 
-	productRequest := domain.Product{}
-	err := json.NewDecoder(request.Body).Decode(&productRequest)
+	productRequest := &domain.Product{}
+	err := json.NewDecoder(request.Body).Decode(productRequest)
 	if err != nil {
 		pc.log.With("traceId", traceID).Errorf("Error to parsing the product payload body. Maformed: %v", err)
 		dto.RenderErrorResponse(request.Context(), writer, http.StatusBadRequest, err)

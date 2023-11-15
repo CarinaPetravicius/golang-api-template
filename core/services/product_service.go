@@ -20,6 +20,6 @@ func NewProductService(log *zap.SugaredLogger) *ProductService {
 }
 
 // CreateProduct service to create the product
-func (ps *ProductService) CreateProduct(ctx context.Context, request domain.Product, traceID string) *domain.ProductResponse {
+func (ps *ProductService) CreateProduct(ctx context.Context, request *domain.Product, traceID string) *domain.ProductResponse {
 	return &domain.ProductResponse{Id: uuid.NewString()}
 }

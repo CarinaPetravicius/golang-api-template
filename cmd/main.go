@@ -20,17 +20,18 @@ func main() {
 	database := config.NewDatabaseConnection(logger, configs.DB)
 	defer config.CloseDatabaseConnection(database)
 
-	prometheusMetrics := middleware2.NewPrometheusMiddleware(configs.Service.Name)
-	jwtHandler := middleware2.NewJWTHandler(logger)
-
 	// Config Domain Services
 	productService := services.NewProductService(logger)
+	authService := services.NewAuthService(logger, configs.Oauth)
+
+	prometheusMetrics := middleware2.NewPrometheusMiddleware(configs.Service.Name)
+	jwtHandler := middleware2.NewJWTHandler(logger, authService)
 
 	// Config Http Routers and Controllers
 	route := router.NewHTTPRouter(prometheusMetrics)
 	valid := validator.New()
 	api.NewHealthCheckController(route, prometheusMetrics)
-	api.NewAuthController(route, logger, valid)
+	api.NewAuthController(route, logger, valid, authService)
 	api.NewProductController(route, logger, valid, prometheusMetrics, productService, jwtHandler)
 
 	// Start Kafka with a new context

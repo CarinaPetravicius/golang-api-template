@@ -28,19 +28,6 @@ API Template with Golang, Hexagonal Architecture, OpenApi, Prometheus, Postgres,
   `DATABASE_DNS=postgresql://root:root@localhost:5432/db?sslmode=disable`
   `OAUTH_SECRET=setYourSecretHere`
 
-### Kafka interface
-After run the project, you can access the Kafdrop on:
-- `localhost:9000` 
-
-On this Kafka interface you can see that the kafka topic was created.
-
-### Endpoints for Health Check:
-- `http://localhost:8080/health/live`
-- `http://localhost:8080/health/ready`
-
-### Prometheus endpoint with Go and Http metrics with custom service_name label:
-- `http://localhost:8080/metrics`
-
 ### Generate code based on the openapi documentation:
 - Install the latest version of "openapi-generator-cli". On linux you can use the npm to install:
 - `npm install @openapitools/openapi-generator-cli -g`
@@ -48,3 +35,22 @@ On this Kafka interface you can see that the kafka topic was created.
   -g go-server -i openapi.yaml \
   -o server/ \
   --additional-properties=outputAsLibrary=true,sourceFolder=openapi`
+
+### Kafka interface
+After run the project, you can access the Kafdrop on:
+- `localhost:9000` 
+
+On this Kafka interface you can see that the kafka topic was created.
+
+#### Endpoints for Health Check:
+- GET `http://localhost:8080/health/live`
+- GET `http://localhost:8080/health/ready`
+
+#### Prometheus endpoint with Go and Http metrics with custom service_name label:
+- GET `http://localhost:8080/metrics`
+
+#### Endpoint to simulate user authentication returning jwt. It is not a full implementation with user database:
+- POST `http://localhost:8080/v1/sts/token`
+
+#### Authenticated endpoint to create product:
+- POST `http://localhost:8080/v1/product`

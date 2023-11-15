@@ -3,24 +3,25 @@ package middleware
 import (
 	"context"
 	"errors"
-	"github.com/golang-jwt/jwt/v5"
 	"go.uber.org/zap"
 	"golang-api-template/adapters/api/dto"
 	"golang-api-template/core/domain"
+	"golang-api-template/core/ports"
 	"net/http"
 	"strings"
-	"time"
 )
 
 // JWTVerify jwt verify token
 type JWTVerify struct {
-	log *zap.SugaredLogger
+	log     *zap.SugaredLogger
+	service ports.IAuthService
 }
 
 // NewJWTHandler create new JWT verify handler
-func NewJWTHandler(log *zap.SugaredLogger) *JWTVerify {
+func NewJWTHandler(log *zap.SugaredLogger, service ports.IAuthService) *JWTVerify {
 	return &JWTVerify{
-		log: log,
+		log:     log,
+		service: service,
 	}
 }
 
@@ -49,42 +50,14 @@ func (jw *JWTVerify) parseTokenFromRequest(r *http.Request) (*domain.AuthClaims,
 	}
 
 	tokenString := strings.Split(header, "Bearer ")
-	if len(tokenString) == 0 {
+	if len(tokenString) < 2 {
 		jw.log.Error("no security header token")
 		return nil, errors.New("no security header token")
 	}
 
-	token, err := jwt.Parse(tokenString[2], func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, errors.New("unexpected signing method")
-		}
-		return domain.SecretKey, nil
-	})
-
-	if err != nil || !token.Valid {
-		jw.log.Errorf("invalid token: %v", err)
-		return nil, errors.New("invalid token")
+	authClaims, err := jw.service.ParseOauthToken(tokenString[1])
+	if err != nil {
+		return nil, err
 	}
-
-	issuer, err := token.Claims.GetIssuer()
-	if err != nil || issuer != domain.Issuer {
-		jw.log.Errorf("invalid token issuer: %v", err)
-		return nil, errors.New("invalid token issuer")
-	}
-
-	expiration, err := token.Claims.GetExpirationTime()
-	if err != nil || expiration.Time.Before(time.Now()) {
-		jw.log.Errorf("token expired: %v", err)
-		return nil, errors.New("token expired")
-	}
-
-	if claims, ok := token.Claims.(jwt.MapClaims); ok {
-		return &domain.AuthClaims{
-			Username: claims["username"].(string),
-			Role:     claims["role"].(string),
-		}, nil
-	} else {
-		jw.log.Errorf("claims not found")
-		return nil, errors.New("claims not found")
-	}
+	return authClaims, nil
 }
