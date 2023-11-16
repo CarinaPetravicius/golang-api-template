@@ -1,9 +1,10 @@
 package domain
 
 const (
-	Issuer    = "golang-api-template"
-	SuperRole = "admin"
-	Claims    = "claims"
+	Issuer      = "golang-api-template"
+	SuperRole   = "admin"
+	ClaimsKey   = "claims"
+	JwtTokenKey = "jwt"
 )
 
 type Auth struct {

@@ -50,6 +50,8 @@ func NewProductController(httpRouter *router.HTTPRouter, log *zap.SugaredLogger,
 func (pc *ProductController) createProduct(writer http.ResponseWriter, request *http.Request) {
 	pc.counterMetric.Inc()
 	traceID := request.Context().Value(serverMiddleware.RequestIDKey).(string)
+	claims := request.Context().Value(domain.ClaimsKey).(domain.AuthClaims)
+	pc.log.With("traceId", traceID).Infof("User %v is creating a product.", claims.Username)
 
 	productRequest := &domain.Product{}
 	err := json.NewDecoder(request.Body).Decode(productRequest)
