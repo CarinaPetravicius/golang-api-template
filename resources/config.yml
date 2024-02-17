@@ -24,3 +24,6 @@ kafka:
 
 oauth:
   secret: ${OAUTH_SECRET}
+
+policies:
+  path: "resources/api_policies.rego"

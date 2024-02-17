@@ -7,6 +7,7 @@ import (
 	middleware2 "golang-api-template/adapters/api/middleware"
 	"golang-api-template/adapters/api/router"
 	"golang-api-template/adapters/kafka"
+	"golang-api-template/adapters/opa"
 	"golang-api-template/config"
 	"golang-api-template/core/services"
 )
@@ -20,6 +21,9 @@ func main() {
 	database := config.NewDatabaseConnection(logger, configs.DB)
 	defer config.CloseDatabaseConnection(database)
 
+	// Opa Policies
+	policies := opa.NewPolicyService(configs.Policies.Path, logger)
+
 	// Config Domain Services
 	productService := services.NewProductService(logger)
 	authService := services.NewAuthService(logger, configs.Oauth)
@@ -32,7 +36,7 @@ func main() {
 	valid := validator.New()
 	api.NewHealthCheckController(route, prometheusMetrics)
 	api.NewAuthController(route, logger, valid, authService)
-	api.NewProductController(route, logger, valid, prometheusMetrics, productService, jwtHandler)
+	api.NewProductController(route, logger, valid, prometheusMetrics, productService, jwtHandler, policies)
 
 	// Start Kafka with a new context
 	ctx := context.Background()

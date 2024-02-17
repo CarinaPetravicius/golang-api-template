@@ -8,11 +8,12 @@ import (
 
 // Configurations Configurations from config file
 type Configurations struct {
-	Server  ServerConfigurations   `yaml:"server"`
-	Service ServiceConfigurations  `yaml:"service"`
-	DB      DatabaseConfigurations `yaml:"database"`
-	Kafka   KafkaConfiguration     `yaml:"kafka"`
-	Oauth   Oauth                  `yaml:"oauth"`
+	Server   ServerConfigurations   `yaml:"server"`
+	Service  ServiceConfigurations  `yaml:"service"`
+	DB       DatabaseConfigurations `yaml:"database"`
+	Kafka    KafkaConfiguration     `yaml:"kafka"`
+	Oauth    Oauth                  `yaml:"oauth"`
+	Policies PoliciesConfiguration  `yaml:"policies"`
 }
 
 // ServerConfigurations Server configurations
@@ -53,6 +54,11 @@ type KafkaConsumerConfiguration struct {
 // Oauth secret key
 type Oauth struct {
 	Secret string `yaml:"secret"`
+}
+
+// PoliciesConfiguration policies configuration
+type PoliciesConfiguration struct {
+	Path string `yaml:"path"`
 }
 
 // LoadConfigFile Load the yml config file and environment variables

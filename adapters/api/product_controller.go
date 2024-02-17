@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"errors"
 	"github.com/go-chi/chi/v5"
 	serverMiddleware "github.com/go-chi/chi/v5/middleware"
 	"github.com/go-playground/validator/v10"
@@ -12,6 +13,7 @@ import (
 	"golang-api-template/adapters/api/dto"
 	"golang-api-template/adapters/api/middleware"
 	"golang-api-template/adapters/api/router"
+	"golang-api-template/adapters/opa"
 	"golang-api-template/core/domain"
 	"golang-api-template/core/ports"
 	"net/http"
@@ -24,16 +26,18 @@ type ProductController struct {
 	validate      *validator.Validate
 	service       ports.IProductService
 	jwtVerify     *middleware.JWTVerify
+	policyService *opa.PolicyService
 }
 
 // NewProductController Create a new http product controller API
 func NewProductController(httpRouter *router.HTTPRouter, log *zap.SugaredLogger, validator *validator.Validate, prometheusRegistry *middleware.CustomMetricRegistry,
-	service ports.IProductService, jwtVerify *middleware.JWTVerify) {
+	service ports.IProductService, jwtVerify *middleware.JWTVerify, policyService *opa.PolicyService) {
 	controller := &ProductController{
-		log:       log,
-		validate:  validator,
-		service:   service,
-		jwtVerify: jwtVerify,
+		log:           log,
+		validate:      validator,
+		service:       service,
+		jwtVerify:     jwtVerify,
+		policyService: policyService,
 		counterMetric: promauto.With(prometheusRegistry).NewCounter(prometheus.CounterOpts{
 			Name: "products_reqs_total",
 			Help: "The total number of request for products endpoints",
@@ -52,6 +56,13 @@ func (pc *ProductController) createProduct(writer http.ResponseWriter, request *
 	traceID := request.Context().Value(serverMiddleware.RequestIDKey).(string)
 	claims := request.Context().Value(domain.ClaimsKey).(domain.AuthClaims)
 	pc.log.With("traceId", traceID).Infof("User %v is creating a product.", claims.Username)
+
+	allowed := pc.policyService.EvaluateApiPolicy(request.Context(), claims, "createProduct", "")
+	if !allowed {
+		pc.log.With("traceId", traceID).Errorf("Forbidden access role")
+		dto.RenderErrorResponse(request.Context(), writer, http.StatusForbidden, errors.New("forbidden access"))
+		return
+	}
 
 	productRequest := &domain.Product{}
 	err := json.NewDecoder(request.Body).Decode(productRequest)
