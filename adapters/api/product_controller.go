@@ -80,6 +80,10 @@ func (pc *ProductController) createProduct(writer http.ResponseWriter, request *
 		return
 	}
 
-	response := pc.service.CreateProduct(request.Context(), productRequest, traceID)
+	response, err := pc.service.CreateProduct(request.Context(), productRequest, claims.Username, traceID)
+	if err != nil {
+		dto.RenderErrorResponse(request.Context(), writer, 0, err)
+		return
+	}
 	dto.RenderResponse(request.Context(), writer, http.StatusCreated, response)
 }

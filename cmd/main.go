@@ -8,6 +8,7 @@ import (
 	"golang-api-template/adapters/api/router"
 	"golang-api-template/adapters/kafka"
 	"golang-api-template/adapters/opa"
+	"golang-api-template/adapters/repository/products"
 	"golang-api-template/config"
 	"golang-api-template/core/services"
 )
@@ -24,8 +25,11 @@ func main() {
 	// Opa Policies
 	policies := opa.NewPolicyService(configs.Policies.Path, logger)
 
+	// Repositories
+	productsRepository := products.NewProductRepository(database)
+
 	// Config Domain Services
-	productService := services.NewProductService(logger)
+	productService := services.NewProductService(logger, productsRepository)
 	authService := services.NewAuthService(logger, configs.Oauth)
 
 	prometheusMetrics := middleware2.NewPrometheusMiddleware(configs.Service.Name)

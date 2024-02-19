@@ -3,8 +3,10 @@ package dto
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-playground/validator/v10"
+	"golang-api-template/adapters/custom_error"
 	"net/http"
 )
 
@@ -33,17 +35,27 @@ func RenderResponse(ctx context.Context, writer http.ResponseWriter, httpStatusC
 
 // RenderErrorResponse render http error response
 func RenderErrorResponse(ctx context.Context, writer http.ResponseWriter, httpStatusCode int, err error) {
-	response := DefaultResponse(http.StatusText(httpStatusCode), err.Error())
+	var response map[string]interface{}
 
-	if errors, ok := err.(validator.ValidationErrors); ok {
+	var customError *custom_error.StatusError
+	if errors.As(err, &customError) {
+		response = DefaultResponse(http.StatusText(customError.ErrorCode()), err.Error())
+		RenderResponse(ctx, writer, customError.ErrorCode(), response)
+		return
+	}
+
+	response = DefaultResponse(http.StatusText(httpStatusCode), err.Error())
+
+	var validationErrors validator.ValidationErrors
+	if errors.As(err, &validationErrors) {
 		var details []map[string]interface{}
-		for _, err := range errors {
+		for _, validationErr := range validationErrors {
 			detail := map[string]interface{}{
-				"field":       err.Field(),
-				"value":       err.Value(),
-				"location":    err.Namespace(),
-				"issue":       err.Tag(),
-				"description": err.Error(),
+				"field":       validationErr.Field(),
+				"value":       validationErr.Value(),
+				"location":    validationErr.Namespace(),
+				"issue":       validationErr.Tag(),
+				"description": validationErr.Error(),
 			}
 			details = append(details, detail)
 		}

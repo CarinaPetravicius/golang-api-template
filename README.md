@@ -42,6 +42,16 @@ After run the project, you can access the Kafdrop on:
 
 On this Kafka interface you can see that the kafka topic was created.
 
+### Run Flyway Database Migration
+- Do the database migration
+```
+  docker run --rm --network="host" -v $(pwd)/resources/database_migrations:/flyway/sql flyway/flyway -url="jdbc:postgresql://127.0.0.1:5432/db?user=root&password=root" -baselineOnMigrate="false" migrate
+```
+- Check the database status
+```
+  docker run --rm --network="host" -v $(pwd)/resources/database_migrations:/flyway/sql flyway/flyway -url="jdbc:postgresql://127.0.0.1:5432/db?user=root&password=root" -baselineOnMigrate="false" info
+```
+
 #### Endpoints for Health Check:
 - GET `http://localhost:8080/health/live`
 - GET `http://localhost:8080/health/ready`
