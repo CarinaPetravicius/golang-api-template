@@ -47,6 +47,7 @@ func NewProductController(httpRouter *router.HTTPRouter, log *zap.SugaredLogger,
 	httpRouter.Router.Group(func(r chi.Router) {
 		r.Use(controller.jwtVerify.JWTVerifyHandler())
 		r.Post("/v1/product", controller.createProduct)
+		r.Get("/v1/product/{id}", controller.getProduct)
 	})
 }
 
@@ -86,4 +87,27 @@ func (pc *ProductController) createProduct(writer http.ResponseWriter, request *
 		return
 	}
 	dto.RenderResponse(request.Context(), writer, http.StatusCreated, response)
+}
+
+// getProduct get the product by id
+func (pc *ProductController) getProduct(writer http.ResponseWriter, request *http.Request) {
+	pc.counterMetric.Inc()
+	traceID := request.Context().Value(serverMiddleware.RequestIDKey).(string)
+	claims := request.Context().Value(domain.ClaimsKey).(domain.AuthClaims)
+	id := chi.URLParam(request, "id")
+	pc.log.With("traceId", traceID).Infof("User %v is searching a product.", claims.Username)
+
+	allowed := pc.policyService.EvaluateApiPolicy(request.Context(), claims, "viewProduct", "")
+	if !allowed {
+		pc.log.With("traceId", traceID).Errorf("Forbidden access role")
+		dto.RenderErrorResponse(request.Context(), writer, http.StatusForbidden, errors.New("forbidden access"))
+		return
+	}
+
+	response, err := pc.service.GetProduct(request.Context(), id, traceID)
+	if err != nil {
+		dto.RenderErrorResponse(request.Context(), writer, 0, err)
+		return
+	}
+	dto.RenderResponse(request.Context(), writer, http.StatusOK, response)
 }

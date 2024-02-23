@@ -22,7 +22,7 @@ func NewProductRepository(db bun.IDB) *ProductRepository {
 	}
 }
 
-// Create a new the product
+// Create a new product
 func (repo *ProductRepository) Create(ctx context.Context, model *domain.ProductModel) (*domain.ProductModel, error) {
 	resp, err := repo.db.NewInsert().Model(model).Exec(ctx)
 	if err != nil {
@@ -62,4 +62,25 @@ func (repo *ProductRepository) ProductAlreadyExist(ctx context.Context, name, un
 	}
 
 	return true, nil
+}
+
+// GetProductById get the product by id
+func (repo *ProductRepository) GetProductById(ctx context.Context, productID string) (*domain.ProductModel, error) {
+	var product domain.ProductModel
+	repo.lockSelect.RLock()
+
+	err := repo.db.NewSelect().
+		Model((*domain.ProductModel)(nil)).
+		Where("id = ?", productID).
+		Scan(ctx, &product)
+
+	repo.lockSelect.RUnlock()
+	if err != nil {
+		if strings.Contains(err.Error(), "no rows") {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	return &product, nil
 }

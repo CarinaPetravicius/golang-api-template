@@ -69,3 +69,21 @@ func FromProductToProductModel(request *Product, auditUser string) *ProductModel
 		UpdateDate:   currentTime,
 	}
 }
+
+// FromProductModelToProductResponse convert from Product database model to Product response
+func FromProductModelToProductResponse(productModel *ProductModel) *ProductResponse {
+	return &ProductResponse{
+		ID:           productModel.ID,
+		Name:         productModel.Name,
+		Description:  productModel.Description,
+		UnitType:     productModel.UnitType,
+		Unit:         productModel.Unit,
+		Brand:        productModel.Brand,
+		Color:        productModel.Color,
+		Style:        productModel.Style,
+		Status:       productModel.Status,
+		AuditUser:    productModel.AuditUser,
+		CreationDate: productModel.CreationDate,
+		UpdateDate:   productModel.UpdateDate,
+	}
+}

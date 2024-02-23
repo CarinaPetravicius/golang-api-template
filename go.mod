@@ -16,7 +16,7 @@ require (
 	github.com/uptrace/bun/driver/pgdriver v1.1.17
 	go.elastic.co/apm/module/apmchiv5/v2 v2.4.8
 	go.elastic.co/ecszap v1.0.2
-	go.uber.org/zap v1.26.0
+	go.uber.org/zap v1.27.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 

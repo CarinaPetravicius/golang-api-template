@@ -35,13 +35,30 @@ func (ps *ProductService) CreateProduct(ctx context.Context, request *domain.Pro
 		return nil, custom_error.New(http.StatusConflict, "already exist")
 	}
 
-	productDomain := domain.FromProductToProductModel(request, username)
+	productModel := domain.FromProductToProductModel(request, username)
 
-	_, err = ps.productRepository.Create(ctx, productDomain)
+	_, err = ps.productRepository.Create(ctx, productModel)
 	if err != nil {
 		ps.log.With("traceId", traceID).Errorf("Internal server error: %v", err)
 		return nil, custom_error.New(http.StatusInternalServerError, "internal server error")
 	}
 
-	return &domain.ProductResponse{ID: productDomain.ID}, nil
+	ps.log.With("traceId", traceID).Infof("The productID %s was created with success", productModel.ID)
+	return &domain.ProductResponse{ID: productModel.ID}, nil
+}
+
+// GetProduct get the product by id
+func (ps *ProductService) GetProduct(ctx context.Context, productID, traceID string) (*domain.ProductResponse, error) {
+	productModel, err := ps.productRepository.GetProductById(ctx, productID)
+	if err != nil {
+		ps.log.With("traceId", traceID).Errorf("Internal server error to get the product: %v", err)
+		return nil, custom_error.New(http.StatusInternalServerError, "internal server error")
+	}
+	if productModel == nil {
+		ps.log.With("traceId", traceID).Errorf("Product not found")
+		return nil, custom_error.New(http.StatusNotFound, "not found")
+	}
+
+	ps.log.With("traceId", traceID).Infof("The productID %s was found with success", productModel.ID)
+	return domain.FromProductModelToProductResponse(productModel), nil
 }
