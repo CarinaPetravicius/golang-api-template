@@ -64,3 +64,6 @@ On this Kafka interface you can see that the kafka topic was created.
 
 #### Authenticated endpoint to create product:
 - POST `http://localhost:8080/v1/product`
+
+#### Authenticated endpoint to get product by id:
+- GET `http://localhost:8080/v1/product/{id}`

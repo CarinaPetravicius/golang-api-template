@@ -57,3 +57,16 @@ services:
       - myLocalNet
     environment:
       KAFKA_BROKERCONNECT: broker:29092
+
+  redis-server:
+    image: redis/redis-stack
+    container_name: redis
+    volumes:
+      - redis_data:/data:rw
+    ports:
+      - "6379:6379"
+    networks:
+      - myLocalNet
+
+volumes:
+  redis_data:

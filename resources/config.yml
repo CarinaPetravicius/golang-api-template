@@ -22,6 +22,17 @@ kafka:
       - user.event
     max-records: 10
 
+redis:
+  localhost: true
+  url: "localhost:6379"
+  user: ""
+  pass: ""
+  db: 0
+  public-key-file: "resources/redis/your-cert.crt"
+  private-key-file: "resources/redis/your-key.key"
+  ca-cert-file: "resources/redis/your-pem.pem"
+  time-out-in-seconds: 1
+
 oauth:
   secret: ${OAUTH_SECRET}
 

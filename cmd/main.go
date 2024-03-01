@@ -25,11 +25,14 @@ func main() {
 	// Opa Policies
 	policies := opa.NewPolicyService(configs.Policies.Path, logger)
 
+	// Redis
+	redisCache := config.NewRedisCache(logger, configs.Redis)
+
 	// Repositories
 	productsRepository := products.NewProductRepository(database)
 
 	// Config Domain Services
-	productService := services.NewProductService(logger, productsRepository)
+	productService := services.NewProductService(logger, productsRepository, redisCache)
 	authService := services.NewAuthService(logger, configs.Oauth)
 
 	prometheusMetrics := middleware2.NewPrometheusMiddleware(configs.Service.Name)

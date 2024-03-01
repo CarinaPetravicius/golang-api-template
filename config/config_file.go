@@ -12,6 +12,7 @@ type Configurations struct {
 	Service  ServiceConfigurations  `yaml:"service"`
 	DB       DatabaseConfigurations `yaml:"database"`
 	Kafka    KafkaConfiguration     `yaml:"kafka"`
+	Redis    RedisConfiguration     `yaml:"redis"`
 	Oauth    Oauth                  `yaml:"oauth"`
 	Policies PoliciesConfiguration  `yaml:"policies"`
 }
@@ -42,6 +43,19 @@ type KafkaConfiguration struct {
 	ClientName       string                     `yaml:"client-name"`
 	ConsumerEnabled  bool                       `yaml:"consumer-enabled"`
 	Consumer         KafkaConsumerConfiguration `yaml:"consumer"`
+}
+
+// RedisConfiguration redis connection configuration
+type RedisConfiguration struct {
+	Localhost        bool   `yaml:"localhost"`
+	URL              string `yaml:"url"`
+	User             string `yaml:"user"`
+	Pass             string `yaml:"pass"`
+	DB               int    `yaml:"db"`
+	PublicKeyFile    string `yaml:"public-key-file"`
+	PrivateKeyFile   string `yaml:"private-key-file"`
+	CaCertFile       string `yaml:"ca-cert-file"`
+	TimeOutInSeconds int64  `yaml:"time-out-in-seconds"`
 }
 
 // KafkaConsumerConfiguration kafka consumer configuration

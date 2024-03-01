@@ -2,7 +2,9 @@ package services
 
 import (
 	"context"
+	"encoding/json"
 	"go.uber.org/zap"
+	"golang-api-template/adapters/cache"
 	"golang-api-template/adapters/custom_error"
 	"golang-api-template/adapters/repository/products"
 	"golang-api-template/core/domain"
@@ -13,13 +15,15 @@ import (
 type ProductService struct {
 	log               *zap.SugaredLogger
 	productRepository products.IRepository
+	redis             cache.IRedis
 }
 
 // NewProductService create new product service
-func NewProductService(log *zap.SugaredLogger, productRepository products.IRepository) *ProductService {
+func NewProductService(log *zap.SugaredLogger, productRepository products.IRepository, redis cache.IRedis) *ProductService {
 	return &ProductService{
 		log:               log,
 		productRepository: productRepository,
+		redis:             redis,
 	}
 }
 
@@ -43,12 +47,36 @@ func (ps *ProductService) CreateProduct(ctx context.Context, request *domain.Pro
 		return nil, custom_error.New(http.StatusInternalServerError, "internal server error")
 	}
 
+	data, errMarshall := json.Marshal(productModel)
+	if errMarshall != nil {
+		ps.log.With("traceId", traceID).Errorf("Internal error to marshal the payload: %v", errMarshall)
+	} else {
+		errCache := ps.redis.Set(ctx, productModel.ID, data, cache.KeyCacheDuration).Err()
+		if errCache != nil {
+			ps.log.With("traceId", traceID).Errorf("Internal error to save in cache: %v", errCache)
+		}
+	}
 	ps.log.With("traceId", traceID).Infof("The productID %s was created with success", productModel.ID)
 	return &domain.ProductResponse{ID: productModel.ID}, nil
 }
 
 // GetProduct get the product by id
 func (ps *ProductService) GetProduct(ctx context.Context, productID, traceID string) (*domain.ProductResponse, error) {
+	var product *domain.ProductModel
+
+	payloadBytes, errCache := ps.redis.Get(ctx, productID).Bytes()
+	if errCache != nil {
+		ps.log.With("traceId", traceID).Infof("productID not found in cache: %v", errCache)
+	} else {
+		errMar := json.Unmarshal(payloadBytes, &product)
+		if errMar != nil {
+			ps.log.With("traceId", traceID).Errorf("Internal error unmarshal the payload: %v", errMar)
+		} else {
+			ps.log.With("traceId", traceID).Infof("The productID %s was found with success in cache", product.ID)
+			return domain.FromProductModelToProductResponse(product), nil
+		}
+	}
+
 	productModel, err := ps.productRepository.GetProductById(ctx, productID)
 	if err != nil {
 		ps.log.With("traceId", traceID).Errorf("Internal server error to get the product: %v", err)
