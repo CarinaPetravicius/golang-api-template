@@ -31,8 +31,17 @@ func main() {
 	// Repositories
 	productsRepository := products.NewProductRepository(database)
 
+	// Start Kafka Producer and Consumer with a new context
+	ctx := context.Background()
+	kafka.CreateKafkaTopics(logger, configs.Kafka, ctx, config.NewKafkaConfigMap(logger, configs.Kafka, config.Topic))
+	producer := kafka.NewKafkaProducer(logger, config.NewKafkaConfigMap(logger, configs.Kafka, config.Producer))
+	defer producer.Close()
+	consumer := kafka.NewKafkaConsumer(logger, config.NewKafkaConfigMap(logger, configs.Kafka, config.Consumer))
+	defer kafka.CloseConsumer(consumer)
+	go kafka.ConsumeMessages(logger, configs.Kafka, consumer)
+
 	// Config Domain Services
-	productService := services.NewProductService(logger, productsRepository, redisCache)
+	productService := services.NewProductService(logger, productsRepository, redisCache, producer, configs.Kafka)
 	authService := services.NewAuthService(logger, configs.Oauth)
 
 	prometheusMetrics := middleware2.NewPrometheusMiddleware(configs.Service.Name)
@@ -44,14 +53,6 @@ func main() {
 	api.NewHealthCheckController(route, prometheusMetrics)
 	api.NewAuthController(route, logger, valid, authService)
 	api.NewProductController(route, logger, valid, prometheusMetrics, productService, jwtHandler, policies)
-
-	// Start Kafka with a new context
-	ctx := context.Background()
-	producer := kafka.NewKafkaProducer(logger, config.NewKafkaConfigMap(logger, configs.Kafka, config.Producer))
-	defer producer.Close()
-	kafka.CreateKafkaTopics(logger, configs.Kafka, ctx, config.NewKafkaConfigMap(logger, configs.Kafka, config.Topic))
-	consumer := kafka.NewKafkaConsumer(logger, config.NewKafkaConfigMap(logger, configs.Kafka, config.Consumer))
-	defer kafka.CloseConsumer(consumer)
 
 	config.StartHttpServer(logger, configs.Server, route)
 }

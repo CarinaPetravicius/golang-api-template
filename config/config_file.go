@@ -41,6 +41,7 @@ type KafkaConfiguration struct {
 	User             string                     `yaml:"user"`
 	Pass             string                     `yaml:"pass"`
 	ClientName       string                     `yaml:"client-name"`
+	Producer         KafkaProducerConfiguration `yaml:"producer"`
 	ConsumerEnabled  bool                       `yaml:"consumer-enabled"`
 	Consumer         KafkaConsumerConfiguration `yaml:"consumer"`
 }
@@ -56,6 +57,11 @@ type RedisConfiguration struct {
 	PrivateKeyFile   string `yaml:"private-key-file"`
 	CaCertFile       string `yaml:"ca-cert-file"`
 	TimeOutInSeconds int64  `yaml:"time-out-in-seconds"`
+}
+
+// KafkaProducerConfiguration kafka producer configuration
+type KafkaProducerConfiguration struct {
+	ProductTopic string `yaml:"product-topic-event"`
 }
 
 // KafkaConsumerConfiguration kafka consumer configuration

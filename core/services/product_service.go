@@ -6,7 +6,9 @@ import (
 	"go.uber.org/zap"
 	"golang-api-template/adapters/cache"
 	"golang-api-template/adapters/custom_error"
+	"golang-api-template/adapters/kafka"
 	"golang-api-template/adapters/repository/products"
+	"golang-api-template/config"
 	"golang-api-template/core/domain"
 	"net/http"
 )
@@ -16,14 +18,19 @@ type ProductService struct {
 	log               *zap.SugaredLogger
 	productRepository products.IRepository
 	redis             cache.IRedis
+	message           kafka.IMessage
+	messageConfig     config.KafkaConfiguration
 }
 
 // NewProductService create new product service
-func NewProductService(log *zap.SugaredLogger, productRepository products.IRepository, redis cache.IRedis) *ProductService {
+func NewProductService(log *zap.SugaredLogger, productRepository products.IRepository, redis cache.IRedis, message kafka.IMessage,
+	messageConfig config.KafkaConfiguration) *ProductService {
 	return &ProductService{
 		log:               log,
 		productRepository: productRepository,
 		redis:             redis,
+		message:           message,
+		messageConfig:     messageConfig,
 	}
 }
 
@@ -56,6 +63,9 @@ func (ps *ProductService) CreateProduct(ctx context.Context, request *domain.Pro
 			ps.log.With("traceId", traceID).Errorf("Internal error to save in cache: %v", errCache)
 		}
 	}
+
+	ps.message.ProduceMessage(ps.messageConfig.Producer.ProductTopic, string(data), domain.ProductEventName, traceID)
+
 	ps.log.With("traceId", traceID).Infof("The productID %s was created with success", productModel.ID)
 	return &domain.ProductResponse{ID: productModel.ID}, nil
 }

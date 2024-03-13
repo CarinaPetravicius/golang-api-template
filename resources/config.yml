@@ -15,11 +15,13 @@ kafka:
   user: ""
   pass: ""
   client-name: "golang-api-template"
+  producer:
+    product-topic-event: product.event
   consumer-enabled: true
   consumer:
     group: "golang-api-template-group"
     topics:
-      - user.event
+      - product.event
     max-records: 10
 
 redis:

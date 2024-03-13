@@ -6,6 +6,9 @@ import (
 	"time"
 )
 
+// ProductEventName product kafka event name
+const ProductEventName = "create.product.event"
+
 // Product request product
 type Product struct {
 	Name        string `json:"name" validate:"required,not_blank,min=2,max=256"`
