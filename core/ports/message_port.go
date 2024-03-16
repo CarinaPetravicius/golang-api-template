@@ -1,4 +1,4 @@
-package kafka
+package ports
 
 // IMessage kafka message interface
 type IMessage interface {

@@ -1,4 +1,4 @@
-package products
+package ports
 
 import (
 	"context"

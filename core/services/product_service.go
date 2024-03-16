@@ -6,24 +6,23 @@ import (
 	"go.uber.org/zap"
 	"golang-api-template/adapters/cache"
 	"golang-api-template/adapters/custom_error"
-	"golang-api-template/adapters/kafka"
-	"golang-api-template/adapters/repository/products"
 	"golang-api-template/config"
 	"golang-api-template/core/domain"
+	"golang-api-template/core/ports"
 	"net/http"
 )
 
 // ProductService product service
 type ProductService struct {
 	log               *zap.SugaredLogger
-	productRepository products.IRepository
-	redis             cache.IRedis
-	message           kafka.IMessage
+	productRepository ports.IRepository
+	redis             ports.IRedis
+	message           ports.IMessage
 	messageConfig     config.KafkaConfiguration
 }
 
 // NewProductService create new product service
-func NewProductService(log *zap.SugaredLogger, productRepository products.IRepository, redis cache.IRedis, message kafka.IMessage,
+func NewProductService(log *zap.SugaredLogger, productRepository ports.IRepository, redis ports.IRedis, message ports.IMessage,
 	messageConfig config.KafkaConfiguration) *ProductService {
 	return &ProductService{
 		log:               log,
